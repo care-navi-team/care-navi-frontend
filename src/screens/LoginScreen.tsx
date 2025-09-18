@@ -1,7 +1,19 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { NavigationProp } from '@react-navigation/native';
 
-const LoginScreen = () => {
+type RootStackParamList = {
+  Login: undefined;
+  SignUp: undefined;
+};
+
+type LoginScreenNavigationProp = NavigationProp<RootStackParamList, 'Login'>;
+
+interface Props {
+  navigation: LoginScreenNavigationProp;
+}
+
+const LoginScreen = ({ navigation }: Props) => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
 
@@ -16,7 +28,7 @@ const LoginScreen = () => {
   };
 
   const handleSignup = () => {
-    Alert.alert('회원가입', '회원가입 화면으로 이동');
+    navigation.navigate('SignUp'); // 회원가입 화면으로 이동
   };
 
   const handleKakaoLogin = async () => {
