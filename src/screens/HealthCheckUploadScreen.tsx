@@ -1,9 +1,9 @@
-// src/screens/HealthCheckUploadScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, ScrollView } from 'react-native';
 import DocumentPicker, {
   DocumentPickerResponse,
 } from 'react-native-document-picker';
+import APIServiceList from '../components/APIServiceList';
 
 const HealthCheckUploadScreen: React.FC = () => {
   const [selectedFile, setSelectedFile] =
@@ -50,32 +50,37 @@ const HealthCheckUploadScreen: React.FC = () => {
   };
 
   return (
-    <View>
-      <Text>국가검진결과 업로드</Text>
-      <Text>
-        고객님의 건강검진 결과를 불러와 맞춤형 건강관리를 시작해보세요.
-      </Text>
+    <ScrollView>
+      <View>
+        <Text>국가검진결과 업로드</Text>
+        <Text>
+          고객님의 건강검진 결과를 불러와 맞춤형 건강관리를 시작해보세요.
+        </Text>
 
-      {/* PDF 업로드 버튼 */}
-      <TouchableOpacity onPress={selectPDFFile}>
-        <Text>PDF 업로드</Text>
-      </TouchableOpacity>
+        {/* PDF 업로드 버튼 */}
+        <TouchableOpacity onPress={selectPDFFile}>
+          <Text>PDF 업로드</Text>
+        </TouchableOpacity>
 
-      {/* 사진 업로드 버튼 */}
-      <TouchableOpacity onPress={selectAnyFile}>
-        <Text>사진 업로드</Text>
-      </TouchableOpacity>
+        {/* 사진 업로드 버튼 */}
+        <TouchableOpacity onPress={selectAnyFile}>
+          <Text>사진 업로드</Text>
+        </TouchableOpacity>
 
-      {/* 선택된 파일 정보 표시 */}
-      {selectedFile && (
-        <View>
-          <Text>선택된 파일:</Text>
-          <Text>파일명: {selectedFile.name}</Text>
-          <Text>크기: {(selectedFile.size! / 1024 / 1024).toFixed(2)} MB</Text>
-          <Text>타입: {selectedFile.type}</Text>
-        </View>
-      )}
-    </View>
+        {/* 선택된 파일 정보 표시 */}
+        {selectedFile && (
+          <View>
+            <Text>선택된 파일:</Text>
+            <Text>파일명: {selectedFile.name}</Text>
+            <Text>
+              크기: {(selectedFile.size! / 1024 / 1024).toFixed(2)} MB
+            </Text>
+            <Text>타입: {selectedFile.type}</Text>
+          </View>
+        )}
+        <APIServiceList />
+      </View>
+    </ScrollView>
   );
 };
 
