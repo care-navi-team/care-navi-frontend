@@ -4,7 +4,7 @@ import React from 'react';
 //import { createStackNavigator } from '@react-navigation/stack';
 // import LoginScreen from './src/screens/LoginScreen';
 // import SignUpScreen from './src/screens/SignUpScreen';
-import HealthCheckUploadScreen from './src/screens/HealthCheckUploadScreen';
+import AppNavigator from './src/navigation/AppNavigator';
 
 //const Stack = createStackNavigator();
 
@@ -24,7 +24,7 @@ const App = () => {
     //     />
     //   </Stack.Navigator>
     // </NavigationContainer>
-    <HealthCheckUploadScreen />
+    <AppNavigator />
   );
 };
 
