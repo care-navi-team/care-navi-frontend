@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Image, StyleSheet } from 'react-native';
 
 interface SplashScreenProps {
   onFinish: () => void;
@@ -16,7 +16,11 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onFinish }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Care Navi</Text>
+      <Image
+        source={require('../assets/logo.png')} // PNG 파일 사용
+        style={styles.logo}
+        resizeMode="contain"
+      />
     </View>
   );
 };
@@ -28,10 +32,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#FFFFFF', // 흰 배경
   },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#FF0000', // 빨간 글씨
+  logo: {
+    width: 200,
+    height: 200,
   },
 });
 

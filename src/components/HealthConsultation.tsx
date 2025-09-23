@@ -34,10 +34,9 @@ const HealthConsultation: React.FC<HealthConsultationProps> = ({
           </TouchableOpacity>
         </View>
 
-        {/* 오른쪽 약 이미지 */}
         <View style={styles.imageContainer}>
           <Image
-            source={require('../assets/medicine.png')} // 실제 이미지 경로로 변경
+            source={require('../assets/person.png')} // 실제 이미지 경로로 변경
             style={styles.pillsImage}
             resizeMode="contain"
           />
