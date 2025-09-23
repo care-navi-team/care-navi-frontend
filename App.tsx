@@ -1,6 +1,6 @@
 import 'react-native-gesture-handler';
 import React, { useState } from 'react';
-import AppNavigator from './src/navigation/AppNavigator';
+import BottomTabNavigator from './src/navigation/BottomTabNavigator';
 import SplashScreen from './src/screens/SplashScreen';
 
 const App: React.FC = () => {
@@ -10,7 +10,7 @@ const App: React.FC = () => {
     return <SplashScreen onFinish={() => setShowSplash(false)} />;
   }
 
-  return <AppNavigator />;
+  return <BottomTabNavigator />;
 };
 
 export default App;
