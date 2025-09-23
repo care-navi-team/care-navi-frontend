@@ -5,6 +5,9 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  TextInput,
+  Alert,
+  Modal,
 } from 'react-native';
 import WalkingComponent from '../components/WalkingComponent';
 import MeditationComponent from '../components/MeditationComponent'; // 명상 컴포넌트 추가
@@ -29,8 +32,18 @@ const MissionScreen: React.FC = () => {
   // 운동하기 상태
   const [walkingCompleted, setWalkingCompleted] = useState(false);
 
+  // 잘 자기 상태
+  const [sleepCompleted, setSleepCompleted] = useState(false);
+  const [sleepModalVisible, setSleepModalVisible] = useState(false);
+  const [sleepHours, setSleepHours] = useState<string>('');
+  const [sleepMinutes, setSleepMinutes] = useState<string>('');
+  const [recordedSleepTime, setRecordedSleepTime] = useState<string>('');
+
   // 명상하기 상태
   const [meditationCompleted, setMeditationCompleted] = useState(false);
+
+  // 목표 수면 시간 (시간 단위로 설정, 예: 8시간)
+  const TARGET_SLEEP_HOURS = 8;
 
   const getCurrentTime = (): string => {
     const now = new Date();
@@ -107,6 +120,66 @@ const MissionScreen: React.FC = () => {
 
   const handleMeditationComplete = () => {
     setMeditationCompleted(true);
+  };
+
+  // 잘 자기 관련 핸들러들
+  const handleSleepPress = () => {
+    if (!sleepCompleted) {
+      setSleepModalVisible(true);
+    }
+  };
+
+  const handleSleepSubmit = () => {
+    const hours = parseInt(sleepHours);
+    const minutes = parseInt(sleepMinutes);
+
+    // 입력 검증
+    if (
+      isNaN(hours) ||
+      isNaN(minutes) ||
+      hours < 0 ||
+      hours > 24 ||
+      minutes < 0 ||
+      minutes >= 60
+    ) {
+      Alert.alert(
+        '오류',
+        '올바른 시간을 입력해주세요.\n(시간: 0-24, 분: 0-59)',
+      );
+      return;
+    }
+
+    // 총 수면 시간을 시간 단위로 계산
+    const totalSleepHours = hours + minutes / 60;
+
+    // 목표 수면 시간의 1시간 내외인지 확인 (7시간 ~ 9시간)
+    const isWithinRange =
+      totalSleepHours >= TARGET_SLEEP_HOURS - 1 &&
+      totalSleepHours <= TARGET_SLEEP_HOURS + 1;
+
+    if (isWithinRange) {
+      setSleepCompleted(true);
+      setRecordedSleepTime(`${sleepHours}시간 ${sleepMinutes}분`);
+      setSleepModalVisible(false);
+      Alert.alert('성공!', '수면 미션을 달성했습니다! 🎉');
+    } else {
+      Alert.alert(
+        '미션 미달성',
+        `목표 수면 시간(${TARGET_SLEEP_HOURS}시간)의 1시간 내외가 아닙니다.\n현재 수면 시간: ${sleepHours}시간 ${sleepMinutes}분\n권장 수면 시간: ${
+          TARGET_SLEEP_HOURS - 1
+        }~${TARGET_SLEEP_HOURS + 1}시간`,
+      );
+    }
+
+    // 입력 필드 초기화
+    setSleepHours('');
+    setSleepMinutes('');
+  };
+
+  const handleModalClose = () => {
+    setSleepModalVisible(false);
+    setSleepHours('');
+    setSleepMinutes('');
   };
 
   return (
@@ -222,6 +295,37 @@ const MissionScreen: React.FC = () => {
         <WalkingComponent onComplete={handleWalkingComplete} />
       </View>
 
+      {/* 잘 자기 섹션 */}
+      <View style={styles.section}>
+        <View style={styles.walkingHeader}>
+          <Text style={styles.walkingIcon}>😴</Text>
+          <Text style={styles.walkingTitle}>잘 자기</Text>
+          <Text style={styles.walkingCount}>
+            {sleepCompleted ? '1' : '0'}/1
+          </Text>
+        </View>
+
+        <View style={styles.sleepContainer}>
+          <TouchableOpacity
+            style={[
+              styles.sleepButton,
+              sleepCompleted && styles.completedSleepButton,
+            ]}
+            onPress={handleSleepPress}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.sleepButtonText}>
+              {sleepCompleted ? '수면 완료!' : '수면 인증하기'}
+            </Text>
+            {sleepCompleted && (
+              <Text style={styles.sleepTimeText}>
+                수면 시간: {recordedSleepTime}
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
+      </View>
+
       {/* 약 챙기기 섹션 */}
       <View style={styles.section}>
         <View style={styles.header}>
@@ -332,6 +436,65 @@ const MissionScreen: React.FC = () => {
 
         <MeditationComponent onComplete={handleMeditationComplete} />
       </View>
+
+      {/* 수면 시간 입력 모달 */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={sleepModalVisible}
+        onRequestClose={handleModalClose}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>수면 시간을 입력해주세요</Text>
+            <Text style={styles.modalSubtitle}>
+              목표: {TARGET_SLEEP_HOURS}시간 (±1시간 허용)
+            </Text>
+
+            <View style={styles.timeInputContainer}>
+              <View style={styles.timeInputGroup}>
+                <TextInput
+                  style={styles.timeInput}
+                  placeholder="0"
+                  value={sleepHours}
+                  onChangeText={setSleepHours}
+                  keyboardType="numeric"
+                  maxLength={2}
+                />
+                <Text style={styles.timeLabel}>시간</Text>
+              </View>
+
+              <View style={styles.timeInputGroup}>
+                <TextInput
+                  style={styles.timeInput}
+                  placeholder="0"
+                  value={sleepMinutes}
+                  onChangeText={setSleepMinutes}
+                  keyboardType="numeric"
+                  maxLength={2}
+                />
+                <Text style={styles.timeLabel}>분</Text>
+              </View>
+            </View>
+
+            <View style={styles.modalButtonContainer}>
+              <TouchableOpacity
+                style={styles.modalCancelButton}
+                onPress={handleModalClose}
+              >
+                <Text style={styles.modalCancelButtonText}>취소</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.modalSubmitButton}
+                onPress={handleSleepSubmit}
+              >
+                <Text style={styles.modalSubmitButtonText}>확인</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
@@ -434,6 +597,128 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: '#666',
     fontWeight: '600',
+  },
+  // 잘 자기 섹션 스타일
+  sleepContainer: {
+    alignItems: 'center',
+    paddingHorizontal: 10,
+  },
+  sleepButton: {
+    width: 200,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#e9ecef',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  completedSleepButton: {
+    backgroundColor: '#87CEEB', // 하늘색 (잘 자기)
+  },
+  sleepButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  sleepTimeText: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 4,
+  },
+  // 모달 스타일
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 30,
+    alignItems: 'center',
+    width: '80%',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 8,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 30,
+    textAlign: 'center',
+  },
+  timeInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 30,
+    gap: 20,
+  },
+  timeInputGroup: {
+    alignItems: 'center',
+  },
+  timeInput: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    width: 80,
+    height: 50,
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: 'bold',
+    backgroundColor: '#f9f9f9',
+  },
+  timeLabel: {
+    fontSize: 16,
+    color: '#333',
+    marginTop: 8,
+    fontWeight: '500',
+  },
+  modalButtonContainer: {
+    flexDirection: 'row',
+    gap: 15,
+  },
+  modalCancelButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 10,
+    backgroundColor: '#e9ecef',
+  },
+  modalCancelButtonText: {
+    fontSize: 16,
+    color: '#666',
+    fontWeight: '500',
+  },
+  modalSubmitButton: {
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 10,
+    backgroundColor: '#87CEEB',
+  },
+  modalSubmitButtonText: {
+    fontSize: 16,
+    color: '#333',
+    fontWeight: 'bold',
   },
 });
 
